@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\Record;
+use App\Models\Transaction;
 use App\Models\User;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
@@ -31,7 +33,18 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    $userId = auth()->id();
+    $records = Record::where('from', $userId)->orWhere('to', $userId)->latest()->get();
+    $names = $records->map(function ($record) {
+            $name = User::find($record->to)->name;
+        return $name;
+    });
+    return Inertia::render('Dashboard', [
+        'names' => $names,
+        'amount' => auth()->user()->balance->amount,
+        'id' => $userId,
+        'records' => $records,
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -61,7 +74,7 @@ Route::get('/qrcode/{id}', function (int $id) {
 })->name('qrcode');
 
 Route::get('/payment/{id}', function (int $id) {
-    if(Auth::check()){
+    if (Auth::check()) {
         $amount = auth()->user()->balance->amount;
     }
     return Inertia::render('Payment', [
@@ -77,11 +90,40 @@ Route::get('success', function () {
 Route::post('/payment/{id}', function (int $id) {
 
     $user = User::findOrFail($id);
-    $user->balance->amount += request()->amount;
-    $user->balance->save();
+
+    DB::transaction(function () use ($user, $id){
+        $user->balance->amount += request()->amount;
+        $user->balance->save();
+        Record::create([
+            'to' => $id,
+            'amount' => request()->amount,
+        ]);
+    });
 
     return true;
 })->name('payment');
+
+Route::post('/internal-payment/{id}', function (int $id) {
+
+    $user = User::findOrFail($id);
+
+    DB::transaction(function () use ($user, $id){
+        $balance = auth()->user()->balance;
+        if($balance->amount < request()->amount){
+            throw new \Exception('Not enough money');
+        }
+        $user->balance->amount += request()->amount;
+
+        $user->balance->save();
+        Record::create([
+            'from' => auth()->id(),
+            'to' => $id,
+            'amount' => request()->amount,
+        ]);
+    });
+
+    return true;
+})->name('internal-payment');
 
 
 Route::middleware('auth')->group(function () {

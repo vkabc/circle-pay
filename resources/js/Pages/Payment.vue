@@ -86,7 +86,7 @@ const pay = async () => {
     console.log(`Transferring ${valueFormatted} USDC to ${to}...`);
 
     // Submit a transaction to call the transfer function
-    const tx = await usdc.transfer(to, value, {gasPrice: 20e9});
+    const tx = await usdc.transfer(to, value );
 
     console.log(`Transaction hash: ${tx.hash}`);
 
@@ -111,12 +111,15 @@ const chargeCard = async () => {
             isLoading.value = false;
             return;
         }
+        const result = await axios.post(route('internal-payment', {id: props.id}), {amount: form.value.amount,});
+
         isLoading.value = false;
         window.location.href = route('success');
         return;
     }
     if (payWithMetamask.value) {
         await pay();
+        const result = await axios.post(route('payment', {id: props.id}), {amount: form.value.amount,});
         isLoading.value = false;
 
         window.location.href = route('success');
@@ -548,7 +551,7 @@ function getAPIHostname() {
                         <p class="tracking-widest text-gray-500 md:text-lg dark:text-gray-400 mb-6">Bedok Chicken Rice
                             Payment</p>
 
-                        <button @click="prefill" type="button" v-show="false"
+                        <button @click="prefill" type="button"
                                 class="ml-4 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-sm rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Prefill
                         </button>
