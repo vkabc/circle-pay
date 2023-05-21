@@ -2,6 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {Head} from '@inertiajs/vue3';
 import GuestLayout from "@/Layouts/GuestLayout.vue";
+import MetaMaskSDK from '@metamask/sdk';
 
 
 import {onMounted, ref} from 'vue'

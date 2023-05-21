@@ -61,8 +61,12 @@ Route::get('/qrcode/{id}', function (int $id) {
 })->name('qrcode');
 
 Route::get('/payment/{id}', function (int $id) {
+    if(Auth::check()){
+        $amount = auth()->user()->balance->amount;
+    }
     return Inertia::render('Payment', [
         'id' => $id,
+        'amount' => $amount ?? null,
     ]);
 })->name('payment');
 
@@ -78,6 +82,7 @@ Route::post('/payment/{id}', function (int $id) {
 
     return true;
 })->name('payment');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
