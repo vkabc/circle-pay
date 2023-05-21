@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Models\User;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -63,6 +64,19 @@ Route::get('/payment/{id}', function (int $id) {
     return Inertia::render('Payment', [
         'id' => $id,
     ]);
+})->name('payment');
+
+Route::get('success', function () {
+    return Inertia::render('Success');
+})->name('success');
+
+Route::post('/payment/{id}', function (int $id) {
+
+    $user = User::findOrFail($id);
+    $user->balance->amount += request()->amount;
+    $user->balance->save();
+
+    return true;
 })->name('payment');
 
 Route::middleware('auth')->group(function () {
