@@ -28,4 +28,9 @@ php artisan migrate
 artisan serve
 ```
 
-## 
+## Circle API used
+1) Payments API, to allow credit card payment.
+2) Accounts API, to allow receiving on chain usdc transfers.
+3) Accounts API, to distribute funds to shop tenants after they create their circle accounts. 
+
+
