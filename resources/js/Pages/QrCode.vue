@@ -20,6 +20,7 @@ import {v4 as uuidv4} from 'uuid'
 import openPGP from './openpgp'
 
 defineProps<{
+    name: string,
     msg: string,
     id: number,
     svg: string,
@@ -263,6 +264,9 @@ function getAPIHostname() {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="flex flex-col justify-center  bg-white  shadow-sm sm:rounded-lg">
 
+                    <div class="inline-flex justify-center hover:underline text-gray-500">
+                        <h1 class="text-3xl font-bold">{{name}}</h1>
+                    </div>
 
                     <div class="mb-4 inline-flex max-h-full w-full max-w-full justify-center">
                         <div v-html="svg"></div>

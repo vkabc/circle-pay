@@ -24,19 +24,24 @@ use Inertia\Inertia;
 */
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+//    return Inertia::render('Welcome', [
+//        'canLogin' => Route::has('login'),
+//        'canRegister' => Route::has('register'),
+//        'laravelVersion' => Application::VERSION,
+//        'phpVersion' => PHP_VERSION,
+//    ]);
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    } else {
+        return redirect()->route('register');
+    }
 });
 
 Route::get('/dashboard', function () {
     $userId = auth()->id();
     $records = Record::where('from', $userId)->orWhere('to', $userId)->latest()->get();
     $names = $records->map(function ($record) {
-            $name = User::find($record->to)->name;
+        $name = User::find($record->to)->name;
         return $name;
     });
     return Inertia::render('Dashboard', [
@@ -56,6 +61,7 @@ Route::get('/qrcode/{id}', function (int $id) {
 
 
     $url = \route('payment', ['id' => $id]);
+    $name = User::find($id)->name;
     $svg = (new Writer(
         new ImageRenderer(
             new RendererStyle(256),
@@ -70,16 +76,20 @@ Route::get('/qrcode/{id}', function (int $id) {
         'id' => $id,
         'svg' => $svg,
         'url' => $url,
+        'name' => $name,
     ]);
 })->name('qrcode');
 
 Route::get('/payment/{id}', function (int $id) {
+
+    $name = User::find($id)->name;
     if (Auth::check()) {
         $amount = auth()->user()->balance->amount;
     }
     return Inertia::render('Payment', [
         'id' => $id,
         'amount' => $amount ?? null,
+        'name' => $name,
     ]);
 })->name('payment');
 
@@ -91,7 +101,7 @@ Route::post('/payment/{id}', function (int $id) {
 
     $user = User::findOrFail($id);
 
-    DB::transaction(function () use ($user, $id){
+    DB::transaction(function () use ($user, $id) {
         $user->balance->amount += request()->amount;
         $user->balance->save();
         Record::create([
@@ -107,9 +117,9 @@ Route::post('/internal-payment/{id}', function (int $id) {
 
     $user = User::findOrFail($id);
 
-    DB::transaction(function () use ($user, $id){
+    DB::transaction(function () use ($user, $id) {
         $balance = auth()->user()->balance;
-        if($balance->amount < request()->amount){
+        if ($balance->amount < request()->amount) {
             throw new \Exception('Not enough money');
         }
         $user->balance->amount += request()->amount;

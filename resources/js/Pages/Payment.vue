@@ -14,6 +14,7 @@ import openPGP from './openpgp'
 import {ethers} from "ethers";
 
 const props = defineProps<{
+    name: string,
     msg: string,
     id: number,
     amount: number,
@@ -523,7 +524,7 @@ function getAPIHostname() {
                     </svg>
                     Pay with MetaMask
                 </button>
-                <button type="button" @click="payWithCredits=true" v-show="!payWithCredits && !payWithMetamask"
+                <button type="button" @click="payWithCredits=true" v-show="!payWithCredits && !payWithMetamask && amount !== null"
                         class="ml-2 text-gray-900 border hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-gray-500 mr-2 mb-2">
 
 
@@ -548,10 +549,9 @@ function getAPIHostname() {
                     <div class="flex align-center">
 
 
-                        <p class="tracking-widest text-gray-500 md:text-lg dark:text-gray-400 mb-6">Bedok Chicken Rice
-                            Payment</p>
+                        <p class="tracking-widest text-gray-500 md:text-lg dark:text-gray-400 mb-6">{{name}}</p>
 
-                        <button @click="prefill" type="button"
+                        <button @click="prefill" type="button" v-show="!payWithCredits && !payWithMetamask"
                                 class="ml-4 text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-sm rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                             Prefill
                         </button>
@@ -569,7 +569,7 @@ function getAPIHostname() {
                         <div class="mb-6" v-show="!payWithMetamask && !payWithCredits">
                             <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Card
                                 Number</label>
-                            <input v-model="form.cardNumber" type="text" id="password"
+                            <input v-model="form.cardNumber" type="text" id="text"
                                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light"
                                    required>
                         </div>
