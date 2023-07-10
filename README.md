@@ -1,9 +1,6 @@
 
 
-## Circle Pay
-
-
-![image](https://github.com/vkabc/circle-pay/assets/4152386/4ddbc38c-2ee5-4f9a-bfb6-80532bcd4d3b)
+# Circle Pay
 
 
 
